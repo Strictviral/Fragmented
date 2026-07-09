@@ -11,6 +11,8 @@ UBasicAttributeSet::UBasicAttributeSet()
 	MaxHealth = 100.f;
 	Stamina = 100.f;
 	MaxStamina = 100.f;
+	CloneCharges = 3.f;
+	CloneChargeBuildUp = 0.f;
 }
 
 void UBasicAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -21,6 +23,8 @@ void UBasicAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME_CONDITION_NOTIFY(UBasicAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBasicAttributeSet, Stamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBasicAttributeSet, MaxStamina, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UBasicAttributeSet, CloneCharges, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UBasicAttributeSet, CloneChargeBuildUp, COND_None, REPNOTIFY_Always);
 	
 }
 
@@ -30,10 +34,16 @@ void UBasicAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute,
 
 	if (Attribute == GetHealthAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue,0.f, GetMaxHealth());
+		//NewValue = FMath::Clamp(NewValue,0.f, GetMaxHealth());
 	}else if (Attribute == GetStaminaAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue,0.f, GetMaxStamina());
+	}else if (Attribute == GetCloneChargesAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, 3.0f);
+	}else if (Attribute == GetCloneChargeBuildUpAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue,0.f, 999.f);
 	}
 }
 
@@ -67,5 +77,22 @@ void UBasicAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 	}else if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
 	{
 		SetStamina(GetStamina());
+	}
+
+	else if (Data.EvaluatedData.Attribute == GetCloneChargeBuildUpAttribute())
+	{
+		float CurrentBuildup = GetCloneChargeBuildUp();
+
+		if (CurrentBuildup >= 100.f)
+		{
+			int32 ChargesEarned = FMath::FloorToInt(CurrentBuildup/100.f);
+
+			float RemainingBuildUp = FMath::Fmod(CurrentBuildup, 100.f);
+
+			SetCloneChargeBuildUp(RemainingBuildUp);
+
+			SetCloneCharges(FMath::Clamp(GetCloneCharges()+ ChargesEarned, 0.f, 3.f));
+			
+		}
 	}
 }

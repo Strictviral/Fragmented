@@ -52,28 +52,37 @@ AFragmentedCharacterBase::AFragmentedCharacterBase()
 void AFragmentedCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	/*if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+		if(CharacterType == ECharacterType::Clone)
+		{
+			GrantAbilities(CloneStartingAbilities);
+			for (const FGameplayAbilitySpec& Spec : AbilitySystemComponent->GetActivatableAbilities())
+			{
+				if (Spec.Ability)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("ASC Ability: %s"), *Spec.Ability->GetName());
+				}
+			}
+		}
+	}*/
 }
 
 void AFragmentedCharacterBase::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	if (AbilitySystemComponent)
-	{
-		AbilitySystemComponent->InitAbilityActorInfo(this, this);
-		GrantAbilities(StartingAbilities);
-	}
+	InitializeAbilitySystemComponent();
+	GrantAbilities(StartingAbilities);
 }
 
 void AFragmentedCharacterBase::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	if (AbilitySystemComponent)
-	{
-		AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	}
+	InitializeAbilitySystemComponent();
 }
 
 void AFragmentedCharacterBase::OnDeadTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
@@ -137,9 +146,18 @@ TArray<FGameplayAbilitySpecHandle> AFragmentedCharacterBase::GrantAbilities(
 	return AbilitySpecHandles;
 }
 
+
+void AFragmentedCharacterBase::InitializeAbilitySystemComponent()
+{
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	}
+}
+
 void AFragmentedCharacterBase::RemoveAbilities(TArray<FGameplayAbilitySpecHandle> AbilityHandleToRemove)
 {
-	if (!AbilitySystemComponent || HasAuthority())
+	if (!AbilitySystemComponent || !HasAuthority())
 	{
 		return;
 	}

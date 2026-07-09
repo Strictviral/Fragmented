@@ -37,6 +37,15 @@ public:
 	FGameplayAttributeData MaxStamina;
 	ATTRIBUTE_ACCESSORS_BASIC(UBasicAttributeSet, MaxStamina);
 
+	//Clone Attribute
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_CloneCharge)
+	FGameplayAttributeData CloneCharges;
+	ATTRIBUTE_ACCESSORS_BASIC(UBasicAttributeSet, CloneCharges);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_CloneChargeBuildup)
+	FGameplayAttributeData CloneChargeBuildUp;
+	ATTRIBUTE_ACCESSORS_BASIC(UBasicAttributeSet, CloneChargeBuildUp);
+
 public:
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldValue) const
@@ -60,6 +69,18 @@ public:
 	void OnRep_MaxStamina(const FGameplayAttributeData& OldValue) const
 	{
 		GAMEPLAYATTRIBUTE_REPNOTIFY(UBasicAttributeSet, MaxStamina, OldValue); 
+	}
+
+	UFUNCTION()
+	void OnRep_CloneCharge(const FGameplayAttributeData& OldValue) const
+	{
+		GAMEPLAYATTRIBUTE_REPNOTIFY(UBasicAttributeSet, CloneCharges, OldValue);
+	}
+
+	UFUNCTION()
+	void OnRep_CloneChargeBuildup(const FGameplayAttributeData& OldValue) const
+	{
+		GAMEPLAYATTRIBUTE_REPNOTIFY(UBasicAttributeSet, CloneChargeBuildUp, OldValue);
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

@@ -8,6 +8,14 @@
 #include "AbilitySystemComponent.h"
 #include "FragmentedCharacterBase.generated.h"
 
+UENUM(BlueprintType)
+enum class ECharacterType : uint8
+{
+	Player,
+	Clone,
+	Enemy
+};
+
 UCLASS()
 class FRAGMENTED_API AFragmentedCharacterBase : public ACharacter, public IAbilitySystemInterface
 {
@@ -39,9 +47,17 @@ protected:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
 	void HandleDeath();
+	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilitySystem")
 	TArray<TSubclassOf<UGameplayAbility>> StartingAbilities;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilitySystem")
+	TArray<TSubclassOf<UGameplayAbility>> CloneStartingAbilities;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite , Category = "PlayerType")
+	ECharacterType CharacterType;
+
 
 public:	
 	// Called every frame
@@ -54,6 +70,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AbilitySystem")
 	TArray<FGameplayAbilitySpecHandle> GrantAbilities(TArray<TSubclassOf<UGameplayAbility>> AbilitiesToGrant);
+	
+	UFUNCTION(BlueprintCallable, Category = "AbilitySystem")
+	void InitializeAbilitySystemComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "AbilitySystem")
 	void RemoveAbilities(TArray<FGameplayAbilitySpecHandle> AbilityHandleToRemove);
