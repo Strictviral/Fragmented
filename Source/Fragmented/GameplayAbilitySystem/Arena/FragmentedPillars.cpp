@@ -88,6 +88,16 @@ void AFragmentedPillars::OnHealthChanged(const FOnAttributeChangeData& Data)
 
 		AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Invulnerable")));
 
+		FGameplayTagContainer OwnedTags;
+		AbilitySystemComponent->GetOwnedGameplayTags(OwnedTags);
+
+		UE_LOG(LogTemp, Warning, TEXT("=== Owned Tags ==="));
+
+		for (const FGameplayTag& Tag : OwnedTags)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *Tag.ToString());
+		}
+
 		OnHalfHealthReached.Broadcast(this);
 	}
 }
