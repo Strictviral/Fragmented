@@ -27,7 +27,7 @@ void AFragmentedPillars::BeginPlay()
 
 	InitializeAbilitySystemComponent();
 	
-	UE_LOG(LogTemp, Warning, TEXT("BeginPlay"));
+	//UE_LOG(LogTemp, Warning, TEXT("BeginPlay"));
 	
 	InitializeAttributes();
 	
@@ -91,12 +91,12 @@ void AFragmentedPillars::OnHealthChanged(const FOnAttributeChangeData& Data)
 		FGameplayTagContainer OwnedTags;
 		AbilitySystemComponent->GetOwnedGameplayTags(OwnedTags);
 
-		UE_LOG(LogTemp, Warning, TEXT("=== Owned Tags ==="));
+		//UE_LOG(LogTemp, Warning, TEXT("=== Owned Tags ==="));
 
-		for (const FGameplayTag& Tag : OwnedTags)
+		/*for (const FGameplayTag& Tag : OwnedTags)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *Tag.ToString());
-		}
+			//UE_LOG(LogTemp, Warning, TEXT("%s"), *Tag.ToString());
+		}*/
 
 		OnHalfHealthReached.Broadcast(this);
 	}

@@ -6,7 +6,9 @@
 #include "FragmentedPillars.h"
 #include "Fragmented/GameplayAbilitySystem/Characters/FragmentedEnemyCharacterBase.h"
 #include "GameFramework/Actor.h"
+#include "WaveData.h"
 #include "FragmentedArenaManager.generated.h"
+
 
 
 USTRUCT()
@@ -43,6 +45,30 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Waves")
 	float MaxSpawnRadius = 6000.f;
 
+	UPROPERTY(EditDefaultsOnly, Category="Spawning")
+	TSubclassOf<AFragmentedEnemyCharacterBase> EnemyClass;
+
+	UPROPERTY(EditDefaultsOnly, Category="Spawning")
+	TSubclassOf<AFragmentedEnemyCharacterBase> MeleeEnemyClass;
+
+	UPROPERTY(EditDefaultsOnly, Category="Spawning")
+	TSubclassOf<AFragmentedEnemyCharacterBase> RangedEnemyClass;
+
+	UPROPERTY(EditDefaultsOnly, Category="Spawning")
+	TSubclassOf<AFragmentedEnemyCharacterBase> RedSpecialEnemyClass;
+
+	UPROPERTY(EditDefaultsOnly, Category="Spawning")
+	TSubclassOf<AFragmentedEnemyCharacterBase> GreenSpecialEnemyClass;
+	
+	//Map to Show which enemies belong to which crystal
+	UPROPERTY()
+	TMap<AFragmentedPillars*, FEnemyArrayWrapper> ActiveEnemies;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Waves")
+	UDataTable* WaveDataTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves")
+	FName CurrentWaveRow;
 
 private:
 
@@ -58,14 +84,10 @@ protected:
 	UFUNCTION()
 	void InitializePillars();
 
-	UPROPERTY(EditDefaultsOnly, Category="Spawning")
-	TSubclassOf<AFragmentedEnemyCharacterBase> EnemyClass;
+	bool GetWaveData(FName WaveRow, FWaveData& OutWaveData) const;
 
-	//Map to Show which enemies belong to which crystal
-	UPROPERTY()
-	TMap<AFragmentedPillars*, FEnemyArrayWrapper> ActiveEnemies;
+	void SpawnEnemyGroup(AFragmentedPillars* Pillar,TSubclassOf<AFragmentedEnemyCharacterBase> EnemyToSpawn,int32 Amount);
 
-	
 
 private:
 

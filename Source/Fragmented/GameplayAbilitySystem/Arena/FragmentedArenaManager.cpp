@@ -34,7 +34,7 @@ void AFragmentedArenaManager::InitializePillars()
 	for (AFragmentedPillars* Pillar : Pillars)
 	{
 		if (!Pillar) continue;
-		UE_LOG(LogTemp, Warning, TEXT("Got Pillars"));
+		//UE_LOG(LogTemp, Warning, TEXT("Got Pillars"));
 
 		//Ensure map entry exists
 		ActiveEnemies.Add(Pillar, FEnemyArrayWrapper());
@@ -44,87 +44,64 @@ void AFragmentedArenaManager::InitializePillars()
 			this,
 			&AFragmentedArenaManager::OnPillarHalfHealth
 		);
-		UE_LOG(LogTemp, Warning, TEXT("Binded to Pillars half health"));
+		//UE_LOG(LogTemp, Warning, TEXT("Binded to Pillars half health"));
 	}
 }
 
-FVector AFragmentedArenaManager::GetRandomSpawnPoint(AFragmentedPillars* Pillar)
+bool AFragmentedArenaManager::GetWaveData(FName WaveRow,FWaveData& OutWaveData) const
 {
-	if (!Pillar) return  FVector::ZeroVector;
+	if(!WaveDataTable) return false;
 
-	UNavigationSystemV1* NavSystem = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+	//Find the Row name and tore it
+	const FWaveData* Wave =
+		WaveDataTable->FindRow<FWaveData>(
+			WaveRow,
+			TEXT("Wave Lookup")
+		);
+	
+	if(!Wave) return false;
 
-	if (!NavSystem)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No NavSystem Detected"));
-		return Pillar->GetActorLocation();
-		
-	}
+	//Modify the variable that we passed in
+	OutWaveData = *Wave;
 
-	// Try and find a point on the navMesh
-	for (int32 Attempt = 0; Attempt < 10; Attempt++)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Trying to Find Point on navMesh"));
-		FNavLocation NavLocation;
-
-		if (NavSystem->GetRandomReachablePointInRadius(
-			Pillar->GetActorLocation(),
-			MaxSpawnRadius,
-			NavLocation))
-		{
-			float Distance =
-				FVector::Dist2D(
-					Pillar->GetActorLocation(),
-					NavLocation.Location);
-
-			if (Distance >= MinSpawnRadius)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Point Found"));
-				return NavLocation.Location;
-			}
-		}
-	}
-	return FVector::ZeroVector;
-
-	/*FVector Origin = Pillar->GetActorLocation();
-
-	float Radius = FMath::FRandRange(MinSpawnRadius, MaxSpawnRadius);
-
-	FVector RandomDirection = FMath::VRand();
-	RandomDirection.Z = 0.f;
-	RandomDirection.Normalize();
-
-	return Origin + (RandomDirection * Radius);*/
+	return true;
 }
 
-void AFragmentedArenaManager::SpawnWaveForPillar(AFragmentedPillars* Pillar)
+void AFragmentedArenaManager::SpawnEnemyGroup(AFragmentedPillars* Pillar,
+	TSubclassOf<AFragmentedEnemyCharacterBase> EnemyToSpawn, int32 Amount)
 {
-	if(!Pillar) return;
-	UE_LOG(LogTemp, Warning, TEXT("Pillar Found"));
-	if(!EnemyClass) return;
-	UE_LOG(LogTemp, Warning, TEXT("EnemyClassFound"));
 
-	//This gets the Array associated with the Pillar, then get and stores a reference to the original array 
-	FEnemyArrayWrapper& EnemyArrayWrapper = ActiveEnemies[Pillar];
+	if (!Pillar || !EnemyToSpawn || Amount <= 0)
+	{
+		return;
+	}
 
-	int32 WaveSize = 5;
-
-	for (int32 i = 0; i < WaveSize; i++)
+	//Prepare the Enemy Wrapper 
+	FEnemyArrayWrapper& ActiveEnemyArrayWrapper = ActiveEnemies[Pillar];
+	
+	for (int32 i = 0; i < Amount; i++)
 	{
 		FVector SpawnLocation = GetRandomSpawnPoint(Pillar);
 
 		if (SpawnLocation.Equals(Pillar->GetActorLocation()))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("StopSpawning Enemy"));
+			//UE_LOG(LogTemp, Warning, TEXT("StopSpawning Enemy"));
 			continue;
 		}
 
+		FActorSpawnParameters SpawnParams;
+
+		SpawnParams.SpawnCollisionHandlingOverride =
+			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+
 		AFragmentedEnemyCharacterBase* Enemy =
 			GetWorld()->SpawnActor<AFragmentedEnemyCharacterBase>(
-				EnemyClass,
+				EnemyToSpawn,
 				SpawnLocation,
-				FRotator::ZeroRotator
-				);
+				FRotator::ZeroRotator,
+				SpawnParams);
+		
 		if(!Enemy) continue;
 
 		//link enemy to Crystal
@@ -133,9 +110,47 @@ void AFragmentedArenaManager::SpawnWaveForPillar(AFragmentedPillars* Pillar)
 		// bind death
 		Enemy->EnemyDeath.AddDynamic(this, &AFragmentedArenaManager::HandleEnemyDeath);
 
-		EnemyArrayWrapper.Enemies.Add(Enemy);
+		ActiveEnemyArrayWrapper.Enemies.Add(Enemy);
 	}
 }
+
+
+void AFragmentedArenaManager::SpawnWaveForPillar(AFragmentedPillars* Pillar)
+{
+	if(!Pillar) return;
+	//UE_LOG(LogTemp, Warning, TEXT("Pillar Found"));
+
+	//Get the array of Names from the Data Table
+	TArray<FName> AvailableWaves = 	WaveDataTable->GetRowNames();
+
+
+	if(AvailableWaves.Num() == 0) return;
+	
+	int32 RandomIndex =	FMath::RandRange(0,AvailableWaves.Num() - 1);
+
+	//Select random name from array 
+	FName SelectedWave = AvailableWaves[RandomIndex];
+
+
+	FWaveData Wave;
+
+
+	if(!GetWaveData(SelectedWave, Wave))	return;
+	
+	
+	SpawnEnemyGroup(Pillar, MeleeEnemyClass, Wave.MeleeCount);
+	SpawnEnemyGroup(Pillar, RangedEnemyClass, Wave.RangedCount);
+	SpawnEnemyGroup(Pillar, GreenSpecialEnemyClass, Wave.GreenSpecialCount);
+	SpawnEnemyGroup(Pillar, RedSpecialEnemyClass, Wave.RedSpecialCount);
+
+	UE_LOG(LogTemp, Warning,
+	TEXT("Spawning Wave: Melee %d | Ranged %d | Green %d | Red %d"),
+	Wave.MeleeCount,
+	Wave.RangedCount,
+	Wave.GreenSpecialCount,
+	Wave.RedSpecialCount);
+}
+
 void AFragmentedArenaManager::OnPillarHalfHealth(AFragmentedPillars* Pillar)
 {
 	if (!Pillar) return;
@@ -169,5 +184,47 @@ void AFragmentedArenaManager::ActivateBoss()
 {
 	//Send Delegate to Boss to Activate
 }
+
+FVector AFragmentedArenaManager::GetRandomSpawnPoint(AFragmentedPillars* Pillar)
+{
+	if (!Pillar) return  FVector::ZeroVector;
+
+	UNavigationSystemV1* NavSystem = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+
+	if (!NavSystem)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("No NavSystem Detected"));
+		return Pillar->GetActorLocation();
+		
+	}
+
+	// Try and find a point on the navMesh
+	for (int32 Attempt = 0; Attempt < 10; Attempt++)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Trying to Find Point on navMesh"));
+		FNavLocation NavLocation;
+
+		if (NavSystem->GetRandomReachablePointInRadius(
+			Pillar->GetActorLocation(),
+			MaxSpawnRadius,
+			NavLocation))
+		{
+			float Distance =
+				FVector::Dist2D(
+					Pillar->GetActorLocation(),
+					NavLocation.Location);
+
+			if (Distance >= MinSpawnRadius)
+			{
+				//UE_LOG(LogTemp, Warning, TEXT("Point Found"));
+				return NavLocation.Location;
+			}
+		}
+	}
+	return FVector::ZeroVector;
+
+	
+}
+
 
 
