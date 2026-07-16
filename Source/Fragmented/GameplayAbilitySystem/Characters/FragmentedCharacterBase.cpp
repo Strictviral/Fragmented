@@ -52,22 +52,7 @@ AFragmentedCharacterBase::AFragmentedCharacterBase()
 void AFragmentedCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	/*if (AbilitySystemComponent)
-	{
-		AbilitySystemComponent->InitAbilityActorInfo(this, this);
-		if(CharacterType == ECharacterType::Clone)
-		{
-			GrantAbilities(CloneStartingAbilities);
-			for (const FGameplayAbilitySpec& Spec : AbilitySystemComponent->GetActivatableAbilities())
-			{
-				if (Spec.Ability)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("ASC Ability: %s"), *Spec.Ability->GetName());
-				}
-			}
-		}
-	}*/
+	
 }
 
 void AFragmentedCharacterBase::PossessedBy(AController* NewController)
@@ -76,6 +61,7 @@ void AFragmentedCharacterBase::PossessedBy(AController* NewController)
 
 	InitializeAbilitySystemComponent();
 	GrantAbilities(StartingAbilities);
+	ApplyDefaultAttributes();
 }
 
 void AFragmentedCharacterBase::OnRep_PlayerState()
@@ -83,6 +69,7 @@ void AFragmentedCharacterBase::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	InitializeAbilitySystemComponent();
+	ApplyDefaultAttributes();
 }
 
 void AFragmentedCharacterBase::OnDeadTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
@@ -95,15 +82,45 @@ void AFragmentedCharacterBase::OnDeadTagChanged(const FGameplayTag CallbackTag, 
 
 void AFragmentedCharacterBase::HandleDeath_Implementation()
 {
-	GetMesh()->SetSimulatePhysics((true));
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//GetMesh()->SetSimulatePhysics((true));
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	GetCharacterMovement()->DisableMovement();
 
-	FVector Impulse = GetActorForwardVector() * -200000;
-	Impulse.Z = 15000;
-	GetMesh()->AddImpulseAtLocation(Impulse, GetActorLocation());
+	//FVector Impulse = GetActorForwardVector() * -200000;
+	//Impulse.Z = 15000;
+	//GetMesh()->AddImpulseAtLocation(Impulse, GetActorLocation());
+}
+
+void AFragmentedCharacterBase::ApplyDefaultAttributes()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("Initialize attributes"));
+	if (!AbilitySystemComponent) return;
+
+	//UE_LOG(LogTemp, Warning, TEXT("Ability system available"));
+
+	if (!DefaultAttributesEffect) return;;
+
+	//UE_LOG(LogTemp, Warning, TEXT("Default Attributes Available"));
+
+	FGameplayEffectContextHandle GameplayEffectHandleContext = AbilitySystemComponent->MakeEffectContext();
+
+	GameplayEffectHandleContext.AddSourceObject(this);
+
+	FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributesEffect, 1.f, GameplayEffectHandleContext);
+
+	//UE_LOG(LogTemp, Warning, TEXT("GE Applied? %s"),
+	//SpecHandle.IsValid() ? TEXT("YES") : TEXT("NO"));
+	
+	if (SpecHandle.IsValid())
+	{
+		AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		//UE_LOG(LogTemp, Warning, TEXT("Health: %f"),
+	//BasicAttributeSet->GetHealth());
+
+		//UE_LOG(LogTemp, Warning, TEXT("Max Health: %f"),
+			//BasicAttributeSet->GetMaxHealth());
+	}
 }
 
 // Called every frame

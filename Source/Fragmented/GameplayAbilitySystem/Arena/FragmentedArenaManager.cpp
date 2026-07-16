@@ -18,6 +18,8 @@ void AFragmentedArenaManager::BeginPlay()
 {
 	Super::BeginPlay();
 
+	
+	
 	InitializePillars();
 	
 }
@@ -88,22 +90,11 @@ void AFragmentedArenaManager::SpawnEnemyGroup(AFragmentedPillars* Pillar,
 			//UE_LOG(LogTemp, Warning, TEXT("StopSpawning Enemy"));
 			continue;
 		}
-
-		FActorSpawnParameters SpawnParams;
-
-		SpawnParams.SpawnCollisionHandlingOverride =
-			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-
-		AFragmentedEnemyCharacterBase* Enemy =
-			GetWorld()->SpawnActor<AFragmentedEnemyCharacterBase>(
-				EnemyToSpawn,
-				SpawnLocation,
-				FRotator::ZeroRotator,
-				SpawnParams);
 		
+		AFragmentedEnemyCharacterBase* Enemy = EnemyPoolManager->RequestEnemy(EnemyToSpawn);
 		if(!Enemy) continue;
 
+		Enemy->SetActorLocation(SpawnLocation);
 		//link enemy to Crystal
 		Enemy->OwningPillar = Pillar;
 
@@ -171,8 +162,9 @@ void AFragmentedArenaManager::HandleEnemyDeath(AFragmentedEnemyCharacterBase* De
 	if (!EnemyArrayWrapper) return;
 
 	EnemyArrayWrapper->Enemies.Remove(DeadEnemy);
-
 	DeadEnemy->EnemyDeath.RemoveAll(this);
+	EnemyPoolManager->ReturnEnemy(DeadEnemy, DeadEnemy->EnemyType);
+
 
 	if (EnemyArrayWrapper->Enemies.Num() == 0)
 	{

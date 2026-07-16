@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "FragmentedCharacterBase.h"
+
 #include "Fragmented/GameplayAbilitySystem/Arena/FragmentedPillars.h"
+#include "Runtime/AIModule/Classes/AIController.h"
 #include "FragmentedEnemyCharacterBase.generated.h"
 
 /**
@@ -27,10 +29,21 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Pillar|Events")
 	FOnEnemyDeath EnemyDeath;
 
+	UPROPERTY()
+	TSubclassOf<AFragmentedEnemyCharacterBase> EnemyType;
+	
+	virtual void OnTakenFromPool();
 
+	virtual void OnReturnedToPool();
 
 protected:
 
 	virtual void HandleDeath_Implementation() override;
+
+	virtual void PossessedBy(AController* NewController) override;
+
+	UPROPERTY()
+	AAIController* EnemyAIController;
+
 	
 };

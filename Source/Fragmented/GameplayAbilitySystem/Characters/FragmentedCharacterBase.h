@@ -58,6 +58,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite , Category = "PlayerType")
 	ECharacterType CharacterType;
 
+	UPROPERTY(EditDefaultsOnly, Category="Attributes")
+	TSubclassOf<UGameplayEffect> DefaultAttributesEffect;
+
+	UFUNCTION()
+	void ApplyDefaultAttributes();
+
 
 public:	
 	// Called every frame

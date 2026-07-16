@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EnemyPoolManager.h"
 #include "FragmentedPillars.h"
 #include "Fragmented/GameplayAbilitySystem/Characters/FragmentedEnemyCharacterBase.h"
 #include "GameFramework/Actor.h"
@@ -45,9 +46,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Waves")
 	float MaxSpawnRadius = 6000.f;
 
-	UPROPERTY(EditDefaultsOnly, Category="Spawning")
-	TSubclassOf<AFragmentedEnemyCharacterBase> EnemyClass;
-
+	//Spawning Class
 	UPROPERTY(EditDefaultsOnly, Category="Spawning")
 	TSubclassOf<AFragmentedEnemyCharacterBase> MeleeEnemyClass;
 
@@ -64,11 +63,16 @@ protected:
 	UPROPERTY()
 	TMap<AFragmentedPillars*, FEnemyArrayWrapper> ActiveEnemies;
 
+	//Wave Data
 	UPROPERTY(EditDefaultsOnly, Category = "Waves")
 	UDataTable* WaveDataTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Waves")
 	FName CurrentWaveRow;
+
+	//Enemy PoolManager Reference
+	UPROPERTY(EditInstanceOnly, Category="Pooling")
+	AEnemyPoolManager* EnemyPoolManager;
 
 private:
 
