@@ -9,6 +9,14 @@
 /**
  * 
  */
+
+UENUM(BlueprintType)
+enum class EFragmentedAbilityCostType : uint8
+{
+	None,
+	CloneBuildUp
+};
+
 UCLASS()
 class FRAGMENTED_API UFragmentedGameplayAbility : public UGameplayAbility
 {
@@ -23,5 +31,26 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Helpers")
 	bool HasPC() const;
+
+protected:
+
+	// Determines what resource this ability consumes
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Cost")
+	EFragmentedAbilityCostType CostType = EFragmentedAbilityCostType::None;
+
+	//Amount of resource required
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Cost")
+	float AbilityCost = 0.f;
+
+	// Gameplay Effect used to modify clone resources
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Cost")
+	TSubclassOf<UGameplayEffect> CloneCostEffect;
 	
+	virtual bool CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const override;
+
+	virtual  void ApplyCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
+
+private:
+	// Handles the clone buildup/charge rollover calculation
+	void ApplyCloneResourceCost(const FGameplayAbilityActorInfo* ActorInfo) const;
 };

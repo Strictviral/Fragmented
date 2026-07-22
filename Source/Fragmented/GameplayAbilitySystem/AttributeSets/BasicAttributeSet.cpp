@@ -34,7 +34,7 @@ void UBasicAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute,
 		NewValue = FMath::Clamp(NewValue,0.f, GetMaxStamina());
 	}else if (Attribute == GetCloneChargesAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue, 0.f, 3.0f);
+		NewValue = FMath::Clamp(NewValue, 0.f, 5.0f);
 	}else if (Attribute == GetCloneChargeBuildUpAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue,0.f, 999.f);

@@ -45,20 +45,16 @@ AFragmentedEnemyCharacterBase* AEnemyPoolManager::RequestEnemy(
 		return nullptr;
 	}
 
-
 	// Get first available enemy
 	AFragmentedEnemyCharacterBase* Enemy =
 		PoolWrapper->Enemies[0];
-
-
+	
 	// Remove from inactive pool
 	PoolWrapper->Enemies.RemoveAt(0);
-
-
+	
 	// Activate enemy
 	Enemy->OnTakenFromPool();
-
-
+	
 	return Enemy;
 }
 
@@ -71,20 +67,17 @@ void AEnemyPoolManager::ReturnEnemy(
 	{
 		return;
 	}
-
-
+	
 	// Find or create pool wrapper
 	FEnemyPoolWrapper& PoolWrapper =
 		EnemyPools.FindOrAdd(EnemyType);
-
-
+	
 	// Disable enemy
 	Enemy->OnReturnedToPool();
 
 	// Move back to pool location
 	Enemy->SetActorLocation(GetActorLocation());
-
-
+	
 	// Add back into inactive pool
 	PoolWrapper.Enemies.Add(Enemy);
 }

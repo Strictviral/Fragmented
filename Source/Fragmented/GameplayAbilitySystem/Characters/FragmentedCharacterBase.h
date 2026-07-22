@@ -61,6 +61,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Attributes")
 	TSubclassOf<UGameplayEffect> DefaultAttributesEffect;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animation")
+	UAnimMontage* HitReactionMontage;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animation")
+	UAnimMontage* DeathReactionMontage;
+
 	UFUNCTION()
 	void ApplyDefaultAttributes();
 
