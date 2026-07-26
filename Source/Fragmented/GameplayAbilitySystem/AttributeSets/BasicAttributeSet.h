@@ -7,6 +7,7 @@
 #include "AttributeSet.h"
 #include "BasicAttributeSet.generated.h"
 
+
 /**
  * 
  */
@@ -45,6 +46,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing=OnRep_CloneChargeBuildup)
 	FGameplayAttributeData CloneChargeBuildUp;
 	ATTRIBUTE_ACCESSORS_BASIC(UBasicAttributeSet, CloneChargeBuildUp);
+	
+
 
 public:
 	UFUNCTION()

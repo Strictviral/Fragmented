@@ -35,6 +35,12 @@ public:
 	virtual void OnTakenFromPool();
 
 	virtual void OnReturnedToPool();
+	
+	UFUNCTION(BlueprintCallable, Category="Enemy Lifecycle")
+	void ActivateEnemy();
+
+	UFUNCTION(BlueprintCallable, Category="Enemy Lifecycle")
+	void DeactivateEnemy();
 
 protected:
 

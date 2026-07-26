@@ -23,6 +23,16 @@ void AFragmentedEnemyCharacterBase::PossessedBy(AController* NewController)
 
 void AFragmentedEnemyCharacterBase::OnTakenFromPool()
 {
+	ActivateEnemy();
+}
+
+void AFragmentedEnemyCharacterBase::OnReturnedToPool()
+{
+	DeactivateEnemy();
+}
+
+void AFragmentedEnemyCharacterBase::ActivateEnemy()
+{
 	if(EnemyAIController && EnemyAIController->GetBrainComponent())
 	{
 		EnemyAIController->BrainComponent->RestartLogic();
@@ -35,11 +45,17 @@ void AFragmentedEnemyCharacterBase::OnTakenFromPool()
 		EMovementMode::MOVE_Walking
 	);
 	ApplyDefaultAttributes();
+	if(AbilitySystemComponent)
+	{
+		AbilitySystemComponent->AddLooseGameplayTag(
+			FGameplayTag::RequestGameplayTag("State.Active")
+		);
+	}
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 }
 
-void AFragmentedEnemyCharacterBase::OnReturnedToPool()
+void AFragmentedEnemyCharacterBase::DeactivateEnemy()
 {
 	if(EnemyAIController && EnemyAIController->GetBrainComponent())
 	{
@@ -52,5 +68,11 @@ void AFragmentedEnemyCharacterBase::OnReturnedToPool()
 	GetCharacterMovement()->DisableMovement();
 	//ApplyDefaultAttributes();
 	SetActorHiddenInGame(true);
+	if(AbilitySystemComponent)
+	{
+		AbilitySystemComponent->RemoveLooseGameplayTag(
+			FGameplayTag::RequestGameplayTag("State.Active")
+		);
+	}
 	SetActorEnableCollision(false);
 }
