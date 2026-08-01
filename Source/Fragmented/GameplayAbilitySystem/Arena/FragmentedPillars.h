@@ -41,8 +41,8 @@ protected:
 	TSubclassOf<UGameplayEffect> DefaultAttributesEffect;
 
 	UPROPERTY()
-	bool bPillarActivated = false;
-
+	bool bInitialPillarWaveActivated = false;
+	
 	UPROPERTY()
     bool bHalfHealthTriggered = false;
 

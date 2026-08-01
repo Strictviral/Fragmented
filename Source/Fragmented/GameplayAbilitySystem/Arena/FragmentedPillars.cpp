@@ -81,15 +81,15 @@ void AFragmentedPillars::OnHealthChanged(const FOnAttributeChangeData& Data)
 
 
 	// First damage taken
-	if (!bPillarActivated && CurrentHealth < MaxHealth)
+	if (!bInitialPillarWaveActivated && CurrentHealth < MaxHealth)
 	{
-		bPillarActivated = true;
+		bInitialPillarWaveActivated = true;
 
 		OnPillarActivated.Broadcast(this);
 	}
 	
 
-	if (CurrentHealth <= MaxHealth * 0.5f)
+	if (CurrentHealth <= MaxHealth * 0.5f && !bHalfHealthTriggered)
 	{
 		bHalfHealthTriggered = true;
 
