@@ -37,19 +37,13 @@ void AFragmentedEnemyCharacterBase::ActivateEnemy()
 	{
 		EnemyAIController->BrainComponent->RestartLogic();
 	}
-	GetCapsuleComponent()->SetCollisionEnabled(
-		ECollisionEnabled::QueryAndPhysics
-	);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
-	GetCharacterMovement()->SetMovementMode(
-		EMovementMode::MOVE_Walking
-	);
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	ApplyDefaultAttributes();
 	if(AbilitySystemComponent)
 	{
-		AbilitySystemComponent->AddLooseGameplayTag(
-			FGameplayTag::RequestGameplayTag("State.Active")
-		);
+		AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("State.Active"));
 	}
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
@@ -59,9 +53,7 @@ void AFragmentedEnemyCharacterBase::DeactivateEnemy()
 {
 	if(EnemyAIController && EnemyAIController->GetBrainComponent())
 	{
-		EnemyAIController->BrainComponent->StopLogic(
-			"Returned To Pool"
-		);
+		EnemyAIController->BrainComponent->StopLogic("Returned To Pool");
 	}
 	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -70,9 +62,7 @@ void AFragmentedEnemyCharacterBase::DeactivateEnemy()
 	SetActorHiddenInGame(true);
 	if(AbilitySystemComponent)
 	{
-		AbilitySystemComponent->RemoveLooseGameplayTag(
-			FGameplayTag::RequestGameplayTag("State.Active")
-		);
+		AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag("State.Active"));
 	}
 	SetActorEnableCollision(false);
 }

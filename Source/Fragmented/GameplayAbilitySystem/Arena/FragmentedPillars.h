@@ -15,7 +15,7 @@ class AFragmentedPillars;
 class UGameplayEffect;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPillarHalfHealth, AFragmentedPillars*, FragmentedPillar);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPillarActivated,AFragmentedPillars*, Pillar);
 
 UCLASS()
 class FRAGMENTED_API AFragmentedPillars : public AActor , public IAbilitySystemInterface
@@ -40,7 +40,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="GAS")
 	TSubclassOf<UGameplayEffect> DefaultAttributesEffect;
 
-
+	UPROPERTY()
+	bool bPillarActivated = false;
 
 	UPROPERTY()
     bool bHalfHealthTriggered = false;
@@ -61,6 +62,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Pillar|Events")
 	FOnPillarHalfHealth OnHalfHealthReached;
+
+	UPROPERTY(BlueprintAssignable, Category = "Pillar|Events")
+	FOnPillarActivated OnPillarActivated;
 
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 

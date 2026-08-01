@@ -31,6 +31,7 @@ void AFragmentedArenaManager::Tick(float DeltaTime)
 
 }
 
+
 void AFragmentedArenaManager::InitializePillars()
 {
 	for (AFragmentedPillars* Pillar : Pillars)
@@ -42,10 +43,9 @@ void AFragmentedArenaManager::InitializePillars()
 		ActiveEnemies.Add(Pillar, FEnemyArrayWrapper());
 
 		// Bind event
-		Pillar->OnHalfHealthReached.AddDynamic(
-			this,
-			&AFragmentedArenaManager::OnPillarHalfHealth
-		);
+		Pillar->OnHalfHealthReached.AddDynamic(this,&AFragmentedArenaManager::OnPillarHalfHealth);
+
+		Pillar->OnPillarActivated.AddDynamic(this,&AFragmentedArenaManager::OnPillarActivated);
 		//UE_LOG(LogTemp, Warning, TEXT("Binded to Pillars half health"));
 	}
 }
@@ -55,11 +55,7 @@ bool AFragmentedArenaManager::GetWaveData(FName WaveRow,FWaveData& OutWaveData) 
 	if(!WaveDataTable) return false;
 
 	//Find the Row name and tore it
-	const FWaveData* Wave =
-		WaveDataTable->FindRow<FWaveData>(
-			WaveRow,
-			TEXT("Wave Lookup")
-		);
+	const FWaveData* Wave = WaveDataTable->FindRow<FWaveData>(WaveRow,TEXT("Wave Lookup"));
 	
 	if(!Wave) return false;
 
@@ -106,13 +102,24 @@ void AFragmentedArenaManager::SpawnEnemyGroup(AFragmentedPillars* Pillar,
 }
 
 
-void AFragmentedArenaManager::SpawnWaveForPillar(AFragmentedPillars* Pillar)
+void AFragmentedArenaManager::SpawnWaveForPillar(AFragmentedPillars* Pillar,EWaveType WaveType)
 {
-	if(!Pillar) return;
+	if(!Pillar || !WaveDataTable) return;
 	//UE_LOG(LogTemp, Warning, TEXT("Pillar Found"));
 
 	//Get the array of Names from the Data Table
-	TArray<FName> AvailableWaves = 	WaveDataTable->GetRowNames();
+	TArray<FName> AvailableWaves;
+
+
+	for (const FName& RowName : WaveDataTable->GetRowNames())
+	{
+		const FWaveData* Wave =	WaveDataTable->FindRow<FWaveData>(RowName,TEXT("Wave Lookup"));
+
+		if(Wave && Wave->WaveType == WaveType)
+		{
+			AvailableWaves.Add(RowName);
+		}
+	}
 
 
 	if(AvailableWaves.Num() == 0) return;
@@ -121,13 +128,10 @@ void AFragmentedArenaManager::SpawnWaveForPillar(AFragmentedPillars* Pillar)
 
 	//Select random name from array 
 	FName SelectedWave = AvailableWaves[RandomIndex];
-
-
-	FWaveData Wave;
-
-
-	if(!GetWaveData(SelectedWave, Wave))	return;
 	
+	FWaveData Wave;
+	
+	if(!GetWaveData(SelectedWave, Wave))	return;
 	
 	SpawnEnemyGroup(Pillar, MeleeEnemyClass, Wave.MeleeCount);
 	SpawnEnemyGroup(Pillar, RangedEnemyClass, Wave.RangedCount);
@@ -142,12 +146,21 @@ void AFragmentedArenaManager::SpawnWaveForPillar(AFragmentedPillars* Pillar)
 	Wave.RedSpecialCount);
 }
 
+void AFragmentedArenaManager::OnPillarActivated(AFragmentedPillars* Pillar)
+{
+	if(!Pillar) return;
+
+	UE_LOG(LogTemp, Warning, TEXT("Pillar Activated"));
+
+	SpawnWaveForPillar(Pillar, EWaveType::Initial);
+}
+
 void AFragmentedArenaManager::OnPillarHalfHealth(AFragmentedPillars* Pillar)
 {
 	if (!Pillar) return;
 
 	UE_LOG(LogTemp, Warning, TEXT("Got The Dispatcher From Pillar halfHealth"));
-	SpawnWaveForPillar(Pillar);
+	SpawnWaveForPillar(Pillar, EWaveType::HalfHealth);
 }
 
 void AFragmentedArenaManager::HandleEnemyDeath(AFragmentedEnemyCharacterBase* DeadEnemy)

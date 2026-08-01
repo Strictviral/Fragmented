@@ -30,28 +30,26 @@ void AFragmentedPillars::BeginPlay()
 	//UE_LOG(LogTemp, Warning, TEXT("BeginPlay"));
 	
 	InitializeAttributes();
-	
 
-	AbilitySystemComponent
-		->GetGameplayAttributeValueChangeDelegate(
-			UBasicAttributeSet::GetHealthAttribute()
-		)
-		.AddUObject(
-			this,
-			&AFragmentedPillars::OnHealthChanged
-		);
+
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UBasicAttributeSet::GetHealthAttribute()).AddUObject(this,&AFragmentedPillars::OnHealthChanged);
+		AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.AntiHeal")));
+	}
+	
 }
 
 void AFragmentedPillars::InitializeAttributes()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Initialize attributes"));
+	//UE_LOG(LogTemp, Warning, TEXT("Initialize attributes"));
 	if (!AbilitySystemComponent) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("Ability system available"));
+	//UE_LOG(LogTemp, Warning, TEXT("Ability system available"));
 
 	if (!DefaultAttributesEffect) return;;
 
-	UE_LOG(LogTemp, Warning, TEXT("Default Attributes Available"));
+	//UE_LOG(LogTemp, Warning, TEXT("Default Attributes Available"));
 
 	FGameplayEffectContextHandle GameplayEffectHandleContext = AbilitySystemComponent->MakeEffectContext();
 
@@ -59,28 +57,37 @@ void AFragmentedPillars::InitializeAttributes()
 
 	FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributesEffect, 1.f, GameplayEffectHandleContext);
 
-	UE_LOG(LogTemp, Warning, TEXT("GE Applied? %s"),
-	SpecHandle.IsValid() ? TEXT("YES") : TEXT("NO"));
+	/*UE_LOG(LogTemp, Warning, TEXT("GE Applied? %s"),
+	SpecHandle.IsValid() ? TEXT("YES") : TEXT("NO"));*/
 	
 	if (SpecHandle.IsValid())
 	{
 		AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-		UE_LOG(LogTemp, Warning, TEXT("Health: %f"),
-	BasicAttributeSet->GetHealth());
+		/*UE_LOG(LogTemp, Warning, TEXT("Health: %f"),
+	BasicAttributeSet->GetHealth());*/
 
-		UE_LOG(LogTemp, Warning, TEXT("Max Health: %f"),
-			BasicAttributeSet->GetMaxHealth());
+		/*UE_LOG(LogTemp, Warning, TEXT("Max Health: %f"),
+			BasicAttributeSet->GetMaxHealth());*/
 	}
 }
 
 void AFragmentedPillars::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
-	if (bHalfHealthTriggered == true) return;
+	//if (bHalfHealthTriggered == true) return;
 
 	float CurrentHealth = Data.NewValue;
 
-	float MaxHealth =
-		Cast<UBasicAttributeSet>(BasicAttributeSet)->GetMaxHealth();
+	float MaxHealth = Cast<UBasicAttributeSet>(BasicAttributeSet)->GetMaxHealth();
+
+
+	// First damage taken
+	if (!bPillarActivated && CurrentHealth < MaxHealth)
+	{
+		bPillarActivated = true;
+
+		OnPillarActivated.Broadcast(this);
+	}
+	
 
 	if (CurrentHealth <= MaxHealth * 0.5f)
 	{

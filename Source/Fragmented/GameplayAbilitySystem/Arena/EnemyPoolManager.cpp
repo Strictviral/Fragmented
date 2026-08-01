@@ -29,8 +29,7 @@ void AEnemyPoolManager::BeginPlay()
 }
 
 
-AFragmentedEnemyCharacterBase* AEnemyPoolManager::RequestEnemy(
-	TSubclassOf<AFragmentedEnemyCharacterBase> EnemyType)
+AFragmentedEnemyCharacterBase* AEnemyPoolManager::RequestEnemy(TSubclassOf<AFragmentedEnemyCharacterBase> EnemyType)
 {
 	if(!EnemyType)
 	{
@@ -46,8 +45,7 @@ AFragmentedEnemyCharacterBase* AEnemyPoolManager::RequestEnemy(
 	}
 
 	// Get first available enemy
-	AFragmentedEnemyCharacterBase* Enemy =
-		PoolWrapper->Enemies[0];
+	AFragmentedEnemyCharacterBase* Enemy = PoolWrapper->Enemies[0];
 	
 	// Remove from inactive pool
 	PoolWrapper->Enemies.RemoveAt(0);
@@ -59,9 +57,7 @@ AFragmentedEnemyCharacterBase* AEnemyPoolManager::RequestEnemy(
 }
 
 
-void AEnemyPoolManager::ReturnEnemy(
-	AFragmentedEnemyCharacterBase* Enemy,
-	TSubclassOf<AFragmentedEnemyCharacterBase> EnemyType)
+void AEnemyPoolManager::ReturnEnemy(AFragmentedEnemyCharacterBase* Enemy,TSubclassOf<AFragmentedEnemyCharacterBase> EnemyType)
 {
 	if(!Enemy || !EnemyType)
 	{
@@ -69,8 +65,7 @@ void AEnemyPoolManager::ReturnEnemy(
 	}
 	
 	// Find or create pool wrapper
-	FEnemyPoolWrapper& PoolWrapper =
-		EnemyPools.FindOrAdd(EnemyType);
+	FEnemyPoolWrapper& PoolWrapper = EnemyPools.FindOrAdd(EnemyType);
 	
 	// Disable enemy
 	Enemy->OnReturnedToPool();
@@ -83,45 +78,31 @@ void AEnemyPoolManager::ReturnEnemy(
 }
 
 
-void AEnemyPoolManager::CreateEnemyPool(
-	TSubclassOf<AFragmentedEnemyCharacterBase> EnemyClass,
-	int32 PoolSize)
+void AEnemyPoolManager::CreateEnemyPool(TSubclassOf<AFragmentedEnemyCharacterBase> EnemyClass,int32 PoolSize)
 {
 	if(!EnemyClass)
 	{
 		return;
 	}
-
-
+	
 	// Get the wrapper for this enemy type
-	FEnemyPoolWrapper& PoolWrapper =
-		EnemyPools.FindOrAdd(EnemyClass);
-
-
+	FEnemyPoolWrapper& PoolWrapper = EnemyPools.FindOrAdd(EnemyClass);
+	
 	for(int32 i = 0; i < PoolSize; i++)
 	{
-		AFragmentedEnemyCharacterBase* Enemy =
-			GetWorld()->SpawnActor<AFragmentedEnemyCharacterBase>(
-				EnemyClass,
-				GetActorLocation(),
-				FRotator::ZeroRotator
-			);
-
-
+		AFragmentedEnemyCharacterBase* Enemy = GetWorld()->SpawnActor<AFragmentedEnemyCharacterBase>(EnemyClass,GetActorLocation(),FRotator::ZeroRotator);
+		
 		if(!Enemy)
 		{
 			continue;
 		}
-
-
+		
 		// Store what pool this enemy belongs to
 		Enemy->EnemyType = EnemyClass;
-
-
+		
 		// Put enemy into inactive state
 		Enemy->OnReturnedToPool();
-
-
+		
 		// Add to pool
 		PoolWrapper.Enemies.Add(Enemy);
 	}

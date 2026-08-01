@@ -5,6 +5,13 @@
 #include "Engine/DataTable.h"
 #include "WaveData.generated.h"
 
+UENUM(BlueprintType)
+enum class EWaveType : uint8
+{
+	Initial UMETA(DisplayName="Initial Wave"),
+	HalfHealth UMETA(DisplayName="Half Health Wave"),
+	Final UMETA(DisplayName="Final Wave")
+};
 
 USTRUCT(BlueprintType)
 struct FWaveData : public FTableRowBase
@@ -14,7 +21,10 @@ struct FWaveData : public FTableRowBase
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 WaveNumber = 0;
+	EWaveType WaveType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 DifficultyTier = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 MeleeCount = 0;

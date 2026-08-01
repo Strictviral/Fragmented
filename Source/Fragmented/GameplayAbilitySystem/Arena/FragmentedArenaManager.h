@@ -84,7 +84,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
-
+	
+	UFUNCTION()
+	void OnPillarActivated(AFragmentedPillars* Pillar);
+	
 	UFUNCTION()
 	void InitializePillars();
 
@@ -99,7 +102,7 @@ private:
 	FVector GetRandomSpawnPoint(AFragmentedPillars* Pillar);
 	
 	UFUNCTION()
-	void SpawnWaveForPillar(AFragmentedPillars* Pillar);
+	void SpawnWaveForPillar(AFragmentedPillars* Pillar, EWaveType WaveType);
 
 	UFUNCTION()
 	void OnPillarHalfHealth(AFragmentedPillars* Pillar);
