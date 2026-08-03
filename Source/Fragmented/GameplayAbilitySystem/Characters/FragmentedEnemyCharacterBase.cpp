@@ -19,6 +19,7 @@ void AFragmentedEnemyCharacterBase::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	EnemyAIController = Cast<AAIController>(NewController);
+	ApplyDefaultAttributes();
 }
 
 void AFragmentedEnemyCharacterBase::OnTakenFromPool()
@@ -45,6 +46,7 @@ void AFragmentedEnemyCharacterBase::ActivateEnemy()
 	{
 		AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("State.Active"));
 	}
+	SpawnedAnimation();
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 }
@@ -65,4 +67,9 @@ void AFragmentedEnemyCharacterBase::DeactivateEnemy()
 		AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag("State.Active"));
 	}
 	SetActorEnableCollision(false);
+}
+
+void AFragmentedEnemyCharacterBase::DeathAnimationFinished()
+{
+	EnemyDeathFinished.Broadcast(this);
 }

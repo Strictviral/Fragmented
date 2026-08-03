@@ -3,6 +3,7 @@
 
 #include "FragmentedArenaManager.h"
 #include "NavigationSystem.h"
+#include "BrainComponent.h"
 #include "Engine/World.h"
 
 // Sets default values
@@ -65,8 +66,18 @@ bool AFragmentedArenaManager::GetWaveData(FName WaveRow,FWaveData& OutWaveData) 
 	return true;
 }
 
-void AFragmentedArenaManager::SpawnEnemyGroup(AFragmentedPillars* Pillar,
-	TSubclassOf<AFragmentedEnemyCharacterBase> EnemyToSpawn, int32 Amount)
+void AFragmentedArenaManager::ReturnEnemyToPool(AFragmentedEnemyCharacterBase* DeadEnemy)
+{
+
+	if(!DeadEnemy) return;
+
+	DeadEnemy->EnemyDeath.RemoveAll(this);
+	DeadEnemy->EnemyDeathFinished.RemoveAll(this);
+
+	EnemyPoolManager->ReturnEnemy(DeadEnemy,DeadEnemy->EnemyType);
+}
+
+void AFragmentedArenaManager::SpawnEnemyGroup(AFragmentedPillars* Pillar,TSubclassOf<AFragmentedEnemyCharacterBase> EnemyToSpawn, int32 Amount)
 {
 
 	if (!Pillar || !EnemyToSpawn || Amount <= 0)
@@ -96,6 +107,7 @@ void AFragmentedArenaManager::SpawnEnemyGroup(AFragmentedPillars* Pillar,
 
 		// bind death
 		Enemy->EnemyDeath.AddDynamic(this, &AFragmentedArenaManager::HandleEnemyDeath);
+		Enemy->EnemyDeathFinished.AddDynamic(this, &AFragmentedArenaManager::ReturnEnemyToPool);
 
 		ActiveEnemyArrayWrapper.Enemies.Add(Enemy);
 	}
@@ -175,8 +187,8 @@ void AFragmentedArenaManager::HandleEnemyDeath(AFragmentedEnemyCharacterBase* De
 	if (!EnemyArrayWrapper) return;
 
 	EnemyArrayWrapper->Enemies.Remove(DeadEnemy);
-	DeadEnemy->EnemyDeath.RemoveAll(this);
-	EnemyPoolManager->ReturnEnemy(DeadEnemy, DeadEnemy->EnemyType);
+	//DeadEnemy->EnemyDeath.RemoveAll(this);
+	//EnemyPoolManager->ReturnEnemy(DeadEnemy, DeadEnemy->EnemyType);
 
 
 	if (EnemyArrayWrapper->Enemies.Num() == 0)
@@ -187,7 +199,14 @@ void AFragmentedArenaManager::HandleEnemyDeath(AFragmentedEnemyCharacterBase* De
 
 void AFragmentedArenaManager::ActivateBoss()
 {
-	//Send Delegate to Boss to Activate
+	if(!BossEnemy) return;
+
+	AAIController* AIController =  Cast<AAIController>(BossEnemy->GetController());
+
+	if(AIController && AIController->GetBrainComponent())
+	{
+		AIController->GetBrainComponent()->RestartLogic();
+	}
 }
 
 FVector AFragmentedArenaManager::GetRandomSpawnPoint(AFragmentedPillars* Pillar)

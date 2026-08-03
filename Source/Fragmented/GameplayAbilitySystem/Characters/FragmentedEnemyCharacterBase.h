@@ -15,6 +15,7 @@
 class AFragmentedEnemyCharacterBase;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyDeath, AFragmentedEnemyCharacterBase*, DeadEnemy);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeathFinished,AFragmentedEnemyCharacterBase*,DeadEnemy);
 
 UCLASS()
 class FRAGMENTED_API AFragmentedEnemyCharacterBase : public AFragmentedCharacterBase
@@ -29,6 +30,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Pillar|Events")
 	FOnEnemyDeath EnemyDeath;
 
+	UPROPERTY(BlueprintAssignable, Category = "EnemyDeathEvent")
+	FOnDeathFinished EnemyDeathFinished;
+
 	UPROPERTY()
 	TSubclassOf<AFragmentedEnemyCharacterBase> EnemyType;
 	
@@ -42,6 +46,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Enemy Lifecycle")
 	void DeactivateEnemy();
 
+	UFUNCTION(BlueprintCallable, Category = "EnemyDeathEvent")
+	void DeathAnimationFinished();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "EnemyDeathEvent")
+	void SpawnedAnimation();
+	
 protected:
 
 	virtual void HandleDeath_Implementation() override;

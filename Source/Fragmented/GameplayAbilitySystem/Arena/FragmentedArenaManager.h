@@ -39,6 +39,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Arena")
 	TArray<AFragmentedPillars*> Pillars;
 
+	UPROPERTY(EditInstanceOnly, Category = "Arena")
+	AFragmentedEnemyCharacterBase* BossEnemy; 
+
 	//Spawning Radius Settings
 	UPROPERTY(EditAnywhere, Category = "Waves")
 	float MinSpawnRadius = 3000.f;
@@ -93,6 +96,8 @@ protected:
 
 	bool GetWaveData(FName WaveRow, FWaveData& OutWaveData) const;
 
+	UFUNCTION()
+	void ReturnEnemyToPool(AFragmentedEnemyCharacterBase* DeadEnemy);
 	void SpawnEnemyGroup(AFragmentedPillars* Pillar,TSubclassOf<AFragmentedEnemyCharacterBase> EnemyToSpawn,int32 Amount);
 
 
