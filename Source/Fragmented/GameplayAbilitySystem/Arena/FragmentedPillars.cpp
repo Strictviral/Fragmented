@@ -107,6 +107,13 @@ void AFragmentedPillars::OnHealthChanged(const FOnAttributeChangeData& Data)
 
 		OnHalfHealthReached.Broadcast(this);
 	}
+
+	if(CurrentHealth <=  0.0f && !bPillarDeactivated)
+	{
+		bPillarDeactivated = true;
+		OnPillarDeactivated.Broadcast();
+		DeactivatePillar();
+	}
 }
 
 void AFragmentedPillars::InitializeAbilitySystemComponent()

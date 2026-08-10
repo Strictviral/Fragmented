@@ -16,6 +16,7 @@ class UGameplayEffect;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPillarHalfHealth, AFragmentedPillars*, FragmentedPillar);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPillarActivated,AFragmentedPillars*, Pillar);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPillarDeactivated);
 
 UCLASS()
 class FRAGMENTED_API AFragmentedPillars : public AActor , public IAbilitySystemInterface
@@ -46,6 +47,10 @@ protected:
 	UPROPERTY()
     bool bHalfHealthTriggered = false;
 
+	UPROPERTY()
+	bool bPillarDeactivated = false;
+
+
 protected:
 
 	UFUNCTION()
@@ -56,6 +61,9 @@ protected:
 	UFUNCTION()
 	void InitializeAbilitySystemComponent();
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "BlueprintFunction | DeactivatePillar")
+	void DeactivatePillar();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -65,6 +73,11 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Pillar|Events")
 	FOnPillarActivated OnPillarActivated;
+
+	UPROPERTY(BlueprintAssignable, Category = "Pillar|Events")
+	FOnPillarDeactivated OnPillarDeactivated;
+
+	
 
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 

@@ -39,8 +39,14 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Arena")
 	TArray<AFragmentedPillars*> Pillars;
 
+	UPROPERTY()
+	float PillarsManged = 0;
+
 	UPROPERTY(EditInstanceOnly, Category = "Arena")
-	AFragmentedEnemyCharacterBase* BossEnemy; 
+	AFragmentedEnemyCharacterBase* BossEnemy;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Arena")
+	UBehaviorTree* BossBehaviorTree;
 
 	//Spawning Radius Settings
 	UPROPERTY(EditAnywhere, Category = "Waves")
@@ -90,6 +96,9 @@ protected:
 	
 	UFUNCTION()
 	void OnPillarActivated(AFragmentedPillars* Pillar);
+
+	UFUNCTION()
+	void OnPillarDeactivated();
 	
 	UFUNCTION()
 	void InitializePillars();

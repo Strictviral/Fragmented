@@ -47,7 +47,11 @@ void AFragmentedArenaManager::InitializePillars()
 		Pillar->OnHalfHealthReached.AddDynamic(this,&AFragmentedArenaManager::OnPillarHalfHealth);
 
 		Pillar->OnPillarActivated.AddDynamic(this,&AFragmentedArenaManager::OnPillarActivated);
+
+		Pillar->OnPillarDeactivated.AddDynamic(this, &AFragmentedArenaManager::OnPillarDeactivated);
 		//UE_LOG(LogTemp, Warning, TEXT("Binded to Pillars half health"));
+
+		PillarsManged += 1;
 	}
 }
 
@@ -167,6 +171,17 @@ void AFragmentedArenaManager::OnPillarActivated(AFragmentedPillars* Pillar)
 	SpawnWaveForPillar(Pillar, EWaveType::Initial);
 }
 
+void AFragmentedArenaManager::OnPillarDeactivated()
+{
+	PillarsManged -= 1;
+
+	if (PillarsManged <= 0)
+	{
+		PillarsManged = 0;
+		ActivateBoss();
+	}
+}
+
 void AFragmentedArenaManager::OnPillarHalfHealth(AFragmentedPillars* Pillar)
 {
 	if (!Pillar) return;
@@ -199,14 +214,15 @@ void AFragmentedArenaManager::HandleEnemyDeath(AFragmentedEnemyCharacterBase* De
 
 void AFragmentedArenaManager::ActivateBoss()
 {
-	if(!BossEnemy) return;
+	if (!BossEnemy) return;
 
-	AAIController* AIController =  Cast<AAIController>(BossEnemy->GetController());
+	AAIController* AIController = Cast<AAIController>(BossEnemy->GetController());
 
-	if(AIController && AIController->GetBrainComponent())
-	{
-		AIController->GetBrainComponent()->RestartLogic();
-	}
+	if (!AIController) return;
+
+	if (!BossBehaviorTree) return;
+
+	AIController->RunBehaviorTree(BossBehaviorTree);
 }
 
 FVector AFragmentedArenaManager::GetRandomSpawnPoint(AFragmentedPillars* Pillar)
