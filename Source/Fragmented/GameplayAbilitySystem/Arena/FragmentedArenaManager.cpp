@@ -216,6 +216,8 @@ void AFragmentedArenaManager::ActivateBoss()
 {
 	if (!BossEnemy) return;
 
+	BossEnemy->AbilitySystemComponent->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Invulnerable")));
+
 	AAIController* AIController = Cast<AAIController>(BossEnemy->GetController());
 
 	if (!AIController) return;
