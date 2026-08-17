@@ -169,6 +169,7 @@ void AFragmentedArenaManager::OnPillarActivated(AFragmentedPillars* Pillar)
 	UE_LOG(LogTemp, Warning, TEXT("Pillar Activated"));
 
 	SpawnWaveForPillar(Pillar, EWaveType::Initial);
+	
 }
 
 void AFragmentedArenaManager::OnPillarDeactivated()

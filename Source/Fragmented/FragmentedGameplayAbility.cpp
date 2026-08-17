@@ -73,8 +73,7 @@ void UFragmentedGameplayAbility::ApplyCloneResourceCost(const FGameplayAbilityAc
 	{
 		return;
 	}
-
-
+	
 	float CurrentBuildUp = Attributes->GetCloneChargeBuildUp();
 	float CurrentCharges = Attributes->GetCloneCharges();
 
@@ -118,7 +117,6 @@ void UFragmentedGameplayAbility::ApplyCloneResourceCost(const FGameplayAbilityAc
 	}
 
 	SpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.CloneCharge"),ChargeSubtraction);
-
 	SpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Data.CloneBuildUp"),	BuildUpDelta);
 	ASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 

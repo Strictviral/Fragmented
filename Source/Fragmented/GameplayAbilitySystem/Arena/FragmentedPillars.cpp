@@ -84,7 +84,7 @@ void AFragmentedPillars::OnHealthChanged(const FOnAttributeChangeData& Data)
 	if (!bInitialPillarWaveActivated && CurrentHealth < MaxHealth)
 	{
 		bInitialPillarWaveActivated = true;
-
+		AbilitySystemComponent->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Invulnerable")));
 		OnPillarActivated.Broadcast(this);
 	}
 	

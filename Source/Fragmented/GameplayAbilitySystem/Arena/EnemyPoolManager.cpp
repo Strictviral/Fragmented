@@ -46,16 +46,12 @@ AFragmentedEnemyCharacterBase* AEnemyPoolManager::RequestEnemy(TSubclassOf<AFrag
 
 	// Get first available enemy
 	AFragmentedEnemyCharacterBase* Enemy = PoolWrapper->Enemies[0];
-	
 	// Remove from inactive pool
 	PoolWrapper->Enemies.RemoveAt(0);
-	
 	// Activate enemy
 	Enemy->OnTakenFromPool();
-	
 	return Enemy;
 }
-
 
 void AEnemyPoolManager::ReturnEnemy(AFragmentedEnemyCharacterBase* Enemy,TSubclassOf<AFragmentedEnemyCharacterBase> EnemyType)
 {
