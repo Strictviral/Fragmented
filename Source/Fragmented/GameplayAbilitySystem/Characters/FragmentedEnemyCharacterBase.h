@@ -46,7 +46,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Enemy Lifecycle")
 	void DeactivateEnemy();
 
-	UFUNCTION(BlueprintCallable, Category = "EnemyDeathEvent")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent , Category = "EnemyDeathEvent")
 	void DeathAnimationFinished();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "EnemyDeathEvent")

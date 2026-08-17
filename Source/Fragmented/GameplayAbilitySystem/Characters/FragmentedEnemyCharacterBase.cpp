@@ -69,7 +69,7 @@ void AFragmentedEnemyCharacterBase::DeactivateEnemy()
 	SetActorEnableCollision(false);
 }
 
-void AFragmentedEnemyCharacterBase::DeathAnimationFinished()
+void AFragmentedEnemyCharacterBase::DeathAnimationFinished_Implementation()
 {
 	EnemyDeathFinished.Broadcast(this);
 }
